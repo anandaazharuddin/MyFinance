@@ -1,0 +1,258 @@
+/* MyFinance — biometric.css
+   Styling halaman Akun & Keamanan (identitas, PIN, kartu biometrik). */
+
+/* ---------- Layout ---------- */
+.page--account {
+  max-width: 880px;
+}
+.account-grid {
+  display: grid;
+  gap: 20px;
+}
+
+/* ---------- Identitas ---------- */
+.account-id {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.account-id__avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--green), var(--green-600, #15803d));
+  box-shadow: var(--shadow-2);
+}
+.account-id__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.account-id__meta b {
+  font-size: 16px;
+  font-weight: 700;
+}
+.account-id__meta small {
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.account-id > .chip {
+  margin-left: auto;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+.chip--ok {
+  color: var(--green);
+  background: var(--green-soft, rgba(22, 163, 74, .12));
+}
+
+.card__foot {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ---------- Biometrik ---------- */
+.card--biometric .card__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.biometric-title-ic {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: var(--green);
+  background: var(--green-soft, rgba(22, 163, 74, .12));
+  box-shadow: var(--shadow-1);
+}
+.biometric-title-ic svg {
+  width: 20px;
+  height: 20px;
+}
+.biometric {
+  display: grid;
+  gap: 14px;
+}
+.biometric__state--off {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, .1);
+  border: 1px solid rgba(245, 158, 11, .25);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.biometric__state--off b {
+  color: #b45309;
+}
+.biometric__list {
+  display: grid;
+  gap: 10px;
+}
+.biometric__empty {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.wa-cred {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface, #fff);
+  border: 1px solid var(--line, rgba(15, 23, 42, .08));
+  box-shadow: var(--shadow-1);
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+.wa-cred:hover {
+  box-shadow: var(--shadow-3);
+  transform: translateY(-1px);
+}
+.wa-cred__ic {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: var(--green);
+  background: var(--green-soft, rgba(22, 163, 74, .12));
+}
+.wa-cred__ic svg {
+  width: 21px;
+  height: 21px;
+}
+.wa-cred__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.wa-cred__meta b {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.wa-cred__meta small {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.wa-cred__del {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+.biometric__enroll {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.biometric__enroll svg {
+  width: 18px;
+  height: 18px;
+}
+.biometric__status {
+  margin: 0;
+  font-size: 13px;
+  min-height: 18px;
+  line-height: 1.5;
+}
+.biometric__status--info { color: var(--blue, #2563eb); }
+.biometric__status--ok { color: var(--green); font-weight: 600; }
+.biometric__status--error { color: var(--red, #dc2626); }
+.biometric__note {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--bg-soft, rgba(241, 245, 249, .7));
+  border: 1px dashed var(--line, rgba(15, 23, 42, .12));
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.biometric__note code {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 11.5px;
+  background: rgba(15, 23, 42, .06);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+/* ---------- Halaman verifikasi (standalone, di atas login.css) ---------- */
+.login__right--solo {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 24px;
+  background:
+    radial-gradient(60% 45% at 50% 0%, rgba(22, 163, 74, .09) 0%, transparent 65%),
+    var(--bg, #f6f8f7);
+}
+.verify-card {
+  width: min(420px, 100%);
+  text-align: center;
+}
+.verify-fp {
+  width: 76px;
+  height: 76px;
+  margin: 4px auto 18px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  color: var(--green, #16a34a);
+  background: rgba(22, 163, 74, .1);
+  box-shadow: 0 12px 30px -12px rgba(22, 163, 74, .45);
+  animation: verify-pulse 2.2s ease-in-out infinite;
+}
+.verify-fp svg {
+  width: 40px;
+  height: 40px;
+}
+@keyframes verify-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: .85; }
+}
+.verify-status {
+  margin: 14px 0 0;
+  font-size: 13px;
+  min-height: 18px;
+  line-height: 1.5;
+  color: var(--text-secondary, #64748b);
+}
+.verify-status--info { color: #2563eb; }
+.verify-status--ok { color: var(--green, #16a34a); font-weight: 600; }
+.verify-status--error { color: #dc2626; }
+
+/* ---------- Responsif ---------- */
+@media (max-width: 640px) {
+  .account-id > .chip { margin-left: 0; }
+  .biometric__enroll { width: 100%; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .verify-fp { animation: none; }
+  .wa-cred { transition: none; }
+}

@@ -1,0 +1,303 @@
+{% load static %}
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MyFinance — dasbor keuangan pribadi yang modern, bersih, dan interaktif.">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% block title %}MyFinance{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+  <div class="app">
+    <!-- ======= SIDEBAR ======= -->
+    <aside class="sidebar" id="sidebar" aria-label="Navigasi utama">
+      <div class="sidebar__brand">
+        <span class="sidebar__logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 15.5l5-5 3.5 3.5L20 7.5"/>
+            <path d="M15 7.5h5v5"/>
+          </svg>
+        </span>
+        <span class="sidebar__name">My<em>Finance</em></span>
+      </div>
+
+      <nav class="sidebar__nav">
+        <p class="nav-label">Menu</p>
+        <a class="nav-item {% if mf_page == 'dashboard' %}is-active{% endif %}" href="{% url 'finance:dashboard' %}" {% if mf_page == 'dashboard' %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3.5" y="3.5" width="7.5" height="7.5" rx="2"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="2"/>
+            <rect x="3.5" y="13" width="7.5" height="7.5" rx="2"/><rect x="13" y="13" width="7.5" height="7.5" rx="2"/>
+          </svg>
+          <span class="nav-item__label">Dasbor</span>
+        </a>
+        <a class="nav-item {% if mf_page == 'transactions' %}is-active{% endif %}" href="{% url 'finance:transactions' %}" {% if mf_page == 'transactions' %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 8h13"/><path d="M14 4l4 4-4 4"/>
+            <path d="M20 16H7"/><path d="M10 20l-4-4 4-4"/>
+          </svg>
+          <span class="nav-item__label">Transaksi</span>
+        </a>
+        <a class="nav-item {% if mf_page == 'budgets' %}is-active{% endif %}" href="{% url 'finance:budgets' %}" {% if mf_page == 'budgets' %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.8" fill="currentColor"/>
+          </svg>
+          <span class="nav-item__label">Anggaran</span>
+        </a>
+        <a class="nav-item {% if mf_page == 'goals' %}is-active{% endif %}" href="{% url 'finance:goals' %}" {% if mf_page == 'goals' %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5.5 21V4.5"/><path d="M5.5 5h12.5l-2.8 4 2.8 4H5.5"/>
+          </svg>
+          <span class="nav-item__label">Tujuan</span>
+        </a>
+
+      </nav>
+
+      <div class="sidebar__footer">
+        <div class="user-chip user-chip--static">
+          <span class="user-chip__avatar" aria-hidden="true">{{ user.username|first|upper|default:'U' }}</span>
+          <span class="user-chip__meta">
+            <b>{{ user.username }}</b>
+          </span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <!-- ======= MAIN ======= -->
+    <div class="main">
+      <header class="topbar">
+        <button type="button" class="icon-btn topbar__menu" id="menu-toggle" aria-label="Buka menu navigasi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </button>
+
+        <div class="topbar__title">
+          <h1 class="topbar__page">{% block page-title %}Dasbor{% endblock %}</h1>
+          <p class="topbar__date">{{ mf_today_long }}</p>
+        </div>
+
+        <div class="topbar__actions">
+          {% if mf_page != 'account' %}
+          <button type="button" class="btn btn-primary btn-sm topbar__add" data-open="tx-modal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            <span class="topbar__btn-label">Tambah</span>
+          </button>
+          {% endif %}
+
+          {% if mf_telegram %}
+          <a class="tg-pill tg-pill--{{ mf_telegram.state }}" href="{% url 'accounts:account' %}#integrasi-telegram"
+             title="{{ mf_telegram.label }}" aria-label="{{ mf_telegram.label }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 4L3.6 10.7c-.9.35-.85 1.6.07 1.9l4.4 1.4 1.6 4.9c.3.9 1.5.98 1.96.13L21 4z"/>
+              <path d="M8.1 14l8.9-7.3"/>
+            </svg>
+            <span class="tg-pill__dot" aria-hidden="true"></span>
+          </a>
+          {% endif %}
+
+          <div class="dropdown" id="notif-dropdown">
+            <button type="button" class="icon-btn icon-btn--bell" data-dropdown-toggle aria-label="Notifikasi" aria-haspopup="true" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 9.5a6 6 0 1 1 12 0c0 4.8 1.8 5.8 1.8 5.8H4.2S6 14.3 6 9.5"/>
+                <path d="M10 18.5a2.1 2.1 0 0 0 4 0"/>
+              </svg>
+              {% if mf_notifications %}<span class="badge">{{ mf_notifications|length }}</span>{% endif %}
+            </button>
+            <div class="dropdown__menu dropdown__menu--notif" role="menu" aria-label="Notifikasi">
+              <div class="dropdown__head">Notifikasi</div>
+              {% for n in mf_notifications %}
+              <div class="notif notif--{{ n.tone }}">
+                <span class="notif__dot" aria-hidden="true"></span>
+                <div class="notif__body">
+                  <b>{{ n.title }}</b>
+                  <small>{{ n.desc }}</small>
+                </div>
+              </div>
+              {% empty %}
+              <div class="dropdown__empty">Tidak ada notifikasi. Semua aman ✨</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="dropdown" id="user-dropdown">
+            <button type="button" class="user-chip" data-dropdown-toggle aria-label="Menu akun" aria-haspopup="true" aria-expanded="false">
+              <span class="user-chip__avatar" aria-hidden="true">{{ user.username|first|upper|default:'U' }}</span>
+              <span class="user-chip__name">{{ user.username }}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="user-chip__chevron"><path d="M6 9.5l6 6 6-6"/></svg>
+            </button>
+            <div class="dropdown__menu dropdown__menu--right" role="menu" aria-label="Menu akun">
+              <div class="dropdown__head dropdown__head--user">
+                <b>{{ user.username }}</b>
+                {% if mf_biometric_count %}
+                <small>Sidik jari aktif</small>
+                {% endif %}
+              </div>
+              <a class="dropdown__item" href="{% url 'accounts:account' %}" role="menuitem">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.4 3.6-5 7-5s6.2 1.6 7 5"/></svg>
+                Akun &amp; Keamanan
+              </a>
+              <hr class="dropdown__divider">
+              <a class="dropdown__item" href="{% url 'accounts:logout' %}" role="menuitem">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h-8v16h8"/><path d="M10 12h11"/><path d="M18 9l3 3-3 3"/></svg>
+                Keluar
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="content" id="content">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <!-- ======= MODAL: TAMBAH TRANSAKSI (global) ======= -->
+  <div class="modal" id="tx-modal" aria-hidden="true">
+    <div class="modal__overlay" data-close-modal></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="tx-modal-title">
+      <header class="modal__head">
+        <div>
+          <h3 class="modal__title" id="tx-modal-title">Tambah Transaksi</h3>
+          <p class="modal__subtitle">Catat pemasukan atau pengeluaran baru</p>
+        </div>
+        <button type="button" class="icon-btn" data-close-modal aria-label="Tutup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </header>
+
+      <form id="tx-form" novalidate>
+        {% csrf_token %}
+        <div class="seg" id="tx-type" role="radiogroup" aria-label="Jenis transaksi">
+          <input type="radio" name="type" id="tx-type-expense" value="expense" checked>
+          <label for="tx-type-expense">Pengeluaran</label>
+          <input type="radio" name="type" id="tx-type-income" value="income">
+          <label for="tx-type-income">Pemasukan</label>
+        </div>
+
+        <div class="field">
+          <label for="tx-category">Kategori</label>
+          <select id="tx-category" name="category" required>
+            {% for c in mf_categories %}
+            <option value="{{ c.id }}" data-type="{{ c.type }}">{{ c.icon }} {{ c.name }}</option>
+            {% endfor %}
+          </select>
+          <button type="button" class="link-btn" id="tx-cat-new-toggle" aria-expanded="false" aria-controls="tx-cat-new">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            Buat kategori baru
+          </button>
+        </div>
+
+        <div class="tx-newcat" id="tx-cat-new" hidden>
+          <p class="tx-newcat__title">
+            Kategori baru
+            <span class="tx-newcat__type" id="tx-cat-new-type">Pengeluaran</span>
+          </p>
+          <div class="field-row">
+            <div class="field">
+              <label for="tx-cat-name">Nama</label>
+              <input id="tx-cat-name" name="new_cat_name" type="text" maxlength="60" placeholder="mis. Kuliner" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="tx-cat-icon">Ikon (emoji)</label>
+              <input id="tx-cat-icon" name="new_cat_icon" type="text" maxlength="4" value="💳" autocomplete="off">
+            </div>
+          </div>
+          <div class="field">
+            <label for="tx-cat-color">Warna</label>
+            <input id="tx-cat-color" name="new_cat_color" type="color" value="#f59e0b">
+          </div>
+          <div class="form-errors" id="tx-cat-errors" hidden></div>
+          <div class="tx-newcat__foot">
+            <button type="button" class="btn btn-ghost btn-sm" id="tx-cat-new-cancel">Batal</button>
+            <button type="button" class="btn btn-primary btn-sm" id="tx-cat-new-save">Buat &amp; pakai</button>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="tx-amount">Jumlah (Rp)</label>
+            <input id="tx-amount" name="amount" type="number" min="0" step="0.01" placeholder="0" required inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="tx-date">Tanggal</label>
+            <input id="tx-date" name="date" type="date" value="{{ mf_today_iso }}" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="tx-desc">Keterangan <span class="field__hint">(opsional)</span></label>
+          <input id="tx-desc" name="description" type="text" maxlength="200" placeholder="mis. Belanja mingguan">
+        </div>
+
+        <div class="form-errors" id="tx-errors" hidden></div>
+
+        <footer class="modal__foot">
+          <button type="button" class="btn btn-ghost" data-close-modal>Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan Transaksi</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======= MODAL: KONFIRMASI (global) ======= -->
+  <div class="modal" id="confirm-modal" aria-hidden="true">
+    <div class="modal__overlay" data-close-modal></div>
+    <div class="modal__panel modal__panel--sm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-text">
+      <div class="confirm">
+        <div class="confirm__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 4l9 16H3z"/><path d="M12 10.5v4"/><circle cx="12" cy="17.2" r="0.4" fill="currentColor"/>
+          </svg>
+        </div>
+        <h3 class="confirm__title" id="confirm-title">Yakin?</h3>
+        <p class="confirm__text" id="confirm-text">Tindakan ini tidak dapat dibatalkan.</p>
+        <footer class="modal__foot modal__foot--center">
+          <button type="button" class="btn btn-ghost" id="confirm-cancel">Batal</button>
+          <button type="button" class="btn btn-danger" id="confirm-ok">Hapus</button>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= TEMPLATE: BARIS TRANSAKSI (dipakai main.js) ======= -->
+  <template id="tpl-tx">
+    <li class="tx tx--new" data-id="">
+      <span class="tx__icon" style="--c: #64748b">💳</span>
+      <div class="tx__main">
+        <b class="tx__desc"></b>
+        <small class="tx__meta"></small>
+      </div>
+      <div class="tx__side">
+        <span class="tx__amount"></span>
+        <button type="button" class="icon-btn icon-btn--sm icon-btn--danger tx__delete" data-delete-tx="" aria-label="Hapus transaksi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4.5 7h15"/><path d="M9.5 7V5h5v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10.2 11v5.5M13.8 11v5.5"/>
+          </svg>
+        </button>
+      </div>
+    </li>
+  </template>
+
+  <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="false"></div>
+
+  {% if mf_js_data %}
+  {{ mf_js_data|json_script:"mf-data" }}
+  {% endif %}
+  {% if mf_telegram %}
+  {{ mf_telegram|json_script:"mf-telegram" }}
+  {% endif %}
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

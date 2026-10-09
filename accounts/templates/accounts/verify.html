@@ -1,0 +1,66 @@
+{% load static %}
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>Verifikasi Biometrik · MyFinance</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+  <link rel="stylesheet" href="{% static 'accounts/css/biometric.css' %}">
+</head>
+<body class="login-page">
+  <main class="login__right login__right--solo">
+    <div class="login-card verify-card">
+      <div class="verify-fp" id="verify-fp" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 11a2 2 0 0 1 2 2c0 2.5-.4 4.8-1 6.5"/>
+          <path d="M8.6 11.2A4 4 0 0 1 16 13c0 1.5 0 3-.3 4.5"/>
+          <path d="M5.6 13.5A7 7 0 0 1 12 5.5c1.6 0 3 .5 4.2 1.4"/>
+          <path d="M19.4 12a7.5 7.5 0 0 0-.4-2"/>
+          <path d="M8 16.5c.3 1.3.1 2.6-.4 3.7"/>
+          <path d="M12 13c0 2.6-.4 5-1.2 7"/>
+          <path d="M5.2 8.5A7.5 7.5 0 0 1 12 3.5"/>
+        </svg>
+      </div>
+
+      <h2 class="login-card__title">Verifikasi Biometrik</h2>
+      <p class="login-card__sub">
+        PIN benar ✓ · sekarang sentuh sensor sidik jari (atau Face ID) di perangkat kamu
+        untuk masuk sebagai <b>{{ username }}</b>.
+      </p>
+
+      {% if error %}
+      <div class="login-alert" role="alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16.2" r=".4" fill="currentColor"/>
+        </svg>
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <button type="button" class="btn btn-primary btn-block" id="verify-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 11a2 2 0 0 1 2 2c0 2.5-.4 4.8-1 6.5"/><path d="M8.6 11.2A4 4 0 0 1 16 13c0 1.5 0 3-.3 4.5"/>
+          <path d="M5.6 13.5A7 7 0 0 1 12 5.5c1.6 0 3 .5 4.2 1.4"/><path d="M12 13c0 2.6-.4 5-1.2 7"/>
+        </svg>
+        Pindai sidik jari
+      </button>
+
+      <p class="verify-status" id="verify-status" role="status" aria-live="polite"></p>
+
+      <p class="login-card__foot">
+        <a href="{% url 'accounts:login' %}">← Kembali ke login</a>
+      </p>
+    </div>
+  </main>
+
+  {{ wa_options|json_script:"wa-data" }}
+  <script src="{% static 'accounts/js/verify.js' %}"></script>
+</body>
+</html>

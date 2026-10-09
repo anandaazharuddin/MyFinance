@@ -1,0 +1,143 @@
+{% load static %}
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>Masuk · MyFinance</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body class="login-page">
+  <div class="login">
+    <!-- ======= PANEL BRAND (kiri) ======= -->
+    <aside class="login__left" aria-hidden="true">
+      <div class="login__orb login__orb--1"></div>
+      <div class="login__orb login__orb--2"></div>
+      <div class="login__orb login__orb--3"></div>
+
+      <div class="login__brand">
+        <span class="login__logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 15.5l5-5 3.5 3.5L20 7.5"/><path d="M15 7.5h5v5"/>
+          </svg>
+        </span>
+        <span class="login__wordmark">My<em>Finance</em></span>
+      </div>
+
+      <div class="login__pitch">
+        <h1>Satu dasbor untuk semua keuanganmu.</h1>
+        <p>Pemasukan, pengeluaran, anggaran, dan tujuan — terpantau rapi dalam satu tempat yang bersih dan cepat.</p>
+        <ul>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+            Statistik &amp; grafik real-time
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+            Anggaran bulanan dengan notifikasi pintar
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+            Login PIN + biometrik sidik jari
+          </li>
+        </ul>
+      </div>
+
+      <div class="login__decor">
+        <div class="login__float login__float--1">
+          <small>Saldo</small>
+          <b>Rp 54,6 jt</b>
+          <span class="login__float-chip">↑ 12%</span>
+        </div>
+        <div class="login__float login__float--2">
+          <div class="login__float-head">
+            <small>Anggaran Hiburan</small>
+            <b>85%</b>
+          </div>
+          <div class="login__float-bar"><span style="width: 85%"></span></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ======= FORM (kanan) ======= -->
+    <main class="login__right">
+      <div class="login-card{% if form.errors or error_msg %} login-card--error{% endif %}">
+        <div class="login-card__mobile-brand">
+          <span class="login__logo login__logo--sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 15.5l5-5 3.5 3.5L20 7.5"/><path d="M15 7.5h5v5"/>
+            </svg>
+          </span>
+          <span class="login__wordmark login__wordmark--sm">My<em>Finance</em></span>
+        </div>
+
+        <h2 class="login-card__title">Selamat datang kembali</h2>
+        <p class="login-card__sub">Masuk dengan nama pengguna dan PIN 6 digit kamu.</p>
+
+        {% if error_msg %}
+        <div class="login-alert" role="alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16.2" r=".4" fill="currentColor"/>
+          </svg>
+          {{ error_msg }}
+        </div>
+        {% endif %}
+
+        {% if form.errors %}
+        <div class="login-alert" role="alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16.2" r=".4" fill="currentColor"/>
+          </svg>
+          {% for e in form.non_field_errors %}{{ e }}{% empty %}Nama pengguna atau PIN salah. Silakan coba lagi.{% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'accounts:login' %}" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ next }}">
+
+          <div class="field">
+            <label for="id_username">Nama Pengguna</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+            <small class="field__error">{{ form.username.errors.0 }}</small>
+            {% endif %}
+          </div>
+
+          <div class="field">
+            <label for="id_pin">PIN <span class="pin-hint">6 digit</span></label>
+            <div class="pw-wrap">
+              {{ form.pin }}
+              <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Tampilkan PIN">
+                <svg class="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg class="ic-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 4l16 16"/><path d="M9.9 5.9A9.6 9.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17.5 17.5 0 0 1-3 3.7M6.2 6.9A16.8 16.8 0 0 0 2.5 12S6 18.5 12 18.5a9 9 0 0 0 4-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>
+                </svg>
+              </button>
+            </div>
+            {% if form.pin.errors %}
+            <small class="field__error">{{ form.pin.errors.0 }}</small>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Masuk</button>
+        </form>
+
+        <p class="login-card__foot">
+          <a href="/">← Kembali ke beranda</a>
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <script src="{% static 'js/login.js' %}"></script>
+</body>
+</html>

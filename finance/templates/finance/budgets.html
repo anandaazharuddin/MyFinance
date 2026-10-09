@@ -1,0 +1,149 @@
+{% extends 'finance/base.html' %}
+{% load finance_extras %}
+
+{% block title %}Anggaran · MyFinance{% endblock %}
+{% block page-title %}Anggaran{% endblock %}
+
+{% block content %}
+<div class="toolbar reveal" style="--i:0">
+  <div>
+    <h2 class="toolbar__title">Batas Pengeluaran Bulanan <span class="month-chip" title="Periode anggaran berjalan">{{ current_month_label }}</span></h2>
+    <p class="toolbar__sub">Pantau seberapa jauh realisasi tiap kategori dari batas yang kamu tetapkan.</p>
+  </div>
+  <div class="toolbar__spacer"></div>
+  <button type="button" class="btn btn-primary btn-sm" data-open="budget-modal">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    Tambah Anggaran
+  </button>
+</div>
+
+<section class="budget-grid">
+  {% for b in budgets %}
+  <article class="card budget-card reveal" style="--i:{{ forloop.counter0 }}" data-budget-id="{{ b.id }}">
+    <header class="budget-card__head">
+      <span class="tx__icon" style="--c: {{ b.color }}" aria-hidden="true">{{ b.icon }}</span>
+      <div class="budget-card__id">
+        <h3 class="budget-card__name">{{ b.name }}</h3>
+        <span class="budget-card__meta">
+          <span class="chip chip--{{ b.state }}">{{ b.state_label }}</span>
+          <small class="budget-card__month" title="Periode anggaran berjalan">{{ b.month_label }}</small>
+        </span>
+      </div>
+    </header>
+
+    <div class="budget-card__nums">
+      <p class="budget-card__spent">{{ b.spent_label }}</p>
+      <p class="budget-card__limit">dari {{ b.limit_label }}</p>
+    </div>
+
+    <div class="progress" role="progressbar" aria-valuenow="{{ b.pct }}" aria-valuemin="0" aria-valuemax="100" aria-label="Realisasi anggaran {{ b.name }}">
+      <span class="progress__fill progress__fill--{{ b.state }}" data-progress="{{ b.pct }}"></span>
+    </div>
+
+    <footer class="budget-card__foot">
+      <small class="{% if b.state == 'over' %}text-danger{% else %}text-muted{% endif %}">{{ b.remaining_label }}</small>
+      <div class="budget-card__actions">
+        <button type="button" class="icon-btn icon-btn--sm" data-edit-budget="{{ b.id }}" data-category-id="{{ b.category_id }}" data-limit="{{ b.limit }}" aria-label="Ubah anggaran {{ b.name }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5.5l4 4L8 20H4v-4z"/></svg>
+        </button>
+        <button type="button" class="icon-btn icon-btn--sm icon-btn--danger" data-delete-budget="{{ b.id }}" data-budget-name="{{ b.name }}" aria-label="Hapus anggaran {{ b.name }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 7h15"/><path d="M9.5 7V5h5v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10.2 11v5.5M13.8 11v5.5"/></svg>
+        </button>
+      </div>
+    </footer>
+  </article>
+  {% empty %}
+  <div class="card empty-note-card reveal">
+    <p class="empty-note">Belum ada anggaran bulanan. Tetapkan batas untuk kategori pengeluaranmu.</p>
+    <button type="button" class="btn btn-primary btn-sm" data-open="budget-modal">Buat Anggaran Pertama</button>
+  </div>
+  {% endfor %}
+</section>
+
+{% if unbudgeted %}
+<section class="unbudgeted reveal" style="--i:6">
+  <h2 class="unbudgeted__title">Kategori tanpa anggaran</h2>
+  <div class="unbudgeted__list">
+    {% for c in unbudgeted %}
+    <button type="button" class="chip chip--clickable" data-add-budget="{{ c.id }}" title="Atur anggaran untuk {{ c.name }}">
+      <i class="tx__icon tx__icon--sm" style="--c: {{ c.color }}" aria-hidden="true">{{ c.icon }}</i>
+      {{ c.name }}
+      <span class="chip__plus" aria-hidden="true">+</span>
+    </button>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- ======= TEMPLATE: KARTU ANGGARAN (dipakai main.js) ======= -->
+<template id="tpl-budget">
+  <article class="card budget-card tx--new" data-budget-id="">
+    <header class="budget-card__head">
+      <span class="tx__icon" style="--c: #64748b" aria-hidden="true">💳</span>
+      <div class="budget-card__id">
+        <h3 class="budget-card__name"></h3>
+        <span class="budget-card__meta">
+          <span class="chip"></span>
+          <small class="budget-card__month"></small>
+        </span>
+      </div>
+    </header>
+    <div class="budget-card__nums">
+      <p class="budget-card__spent"></p>
+      <p class="budget-card__limit"></p>
+    </div>
+    <div class="progress" role="progressbar">
+      <span class="progress__fill" data-progress="0"></span>
+    </div>
+    <footer class="budget-card__foot">
+      <small class="text-muted"></small>
+      <div class="budget-card__actions">
+        <button type="button" class="icon-btn icon-btn--sm" data-edit-budget="" data-category-id="" data-limit="0" aria-label="Ubah anggaran">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5.5l4 4L8 20H4v-4z"/></svg>
+        </button>
+        <button type="button" class="icon-btn icon-btn--sm icon-btn--danger" data-delete-budget="" aria-label="Hapus anggaran">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 7h15"/><path d="M9.5 7V5h5v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10.2 11v5.5M13.8 11v5.5"/></svg>
+        </button>
+      </div>
+    </footer>
+  </article>
+</template>
+
+<!-- ======= MODAL: BUDGET ======= -->
+<div class="modal" id="budget-modal" aria-hidden="true">
+  <div class="modal__overlay" data-close-modal></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="budget-modal-title">
+    <header class="modal__head">
+      <div>
+        <h3 class="modal__title" id="budget-modal-title">Tambah Anggaran</h3>
+        <p class="modal__subtitle">Atur batas pengeluaran bulanan per kategori</p>
+      </div>
+      <button type="button" class="icon-btn" data-close-modal aria-label="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </header>
+
+    <form id="budget-form" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="id" id="budget-id">
+      <div class="field">
+        <label for="budget-category">Kategori Pengeluaran</label>
+        <select id="budget-category" name="category" required>
+          {% for c in expense_categories %}
+          <option value="{{ c.id }}">{{ c.icon }} {{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="budget-limit">Batas Bulanan (Rp)</label>
+        <input id="budget-limit" name="monthly_limit" type="number" min="0" step="0.01" placeholder="mis. 1500000" required inputmode="numeric">
+      </div>
+      <div class="form-errors" id="budget-errors" hidden></div>
+      <footer class="modal__foot">
+        <button type="button" class="btn btn-ghost" data-close-modal>Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Anggaran</button>
+      </footer>
+    </form>
+  </div>
+</div>
+{% endblock %}

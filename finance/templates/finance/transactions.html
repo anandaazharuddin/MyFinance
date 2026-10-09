@@ -1,0 +1,62 @@
+{% extends 'finance/base.html' %}
+{% load finance_extras %}
+
+{% block title %}Transaksi · MyFinance{% endblock %}
+{% block page-title %}Transaksi{% endblock %}
+
+{% block content %}
+<div class="toolbar reveal" style="--i:0">
+  <div class="seg" role="group" aria-label="Filter jenis transaksi">
+    <a class="filter-link {% if not filter_type %}is-active{% endif %}" href="?{% if filter_month %}month={{ filter_month }}{% endif %}">Semua</a>
+    <a class="filter-link {% if filter_type == 'income' %}is-active{% endif %}" href="?type=income{% if filter_month %}&month={{ filter_month }}{% endif %}">Pemasukan</a>
+    <a class="filter-link {% if filter_type == 'expense' %}is-active{% endif %}" href="?type=expense{% if filter_month %}&month={{ filter_month }}{% endif %}">Pengeluaran</a>
+  </div>
+
+  <select class="select select--sm" id="month-filter" aria-label="Filter bulan">
+    <option value="">Semua bulan</option>
+    {% for value, label in month_options %}
+    <option value="{{ value }}" {% if filter_month == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+
+  <div class="toolbar__spacer"></div>
+  <button type="button" class="btn btn-primary btn-sm" data-open="tx-modal">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    Tambah
+  </button>
+</div>
+
+<section class="summary-strip reveal" style="--i:1" aria-label="Rekap filter aktif">
+  <div class="summary-item">
+    <div>
+      <p class="summary-item__label">Pemasukan</p>
+      <p class="summary-item__value is-income" data-summary="income">{{ summary.income_label }}</p>
+    </div>
+  </div>
+  <div class="summary-item">
+    <div>
+      <p class="summary-item__label">Pengeluaran</p>
+      <p class="summary-item__value is-expense" data-summary="expense">{{ summary.expense_label }}</p>
+    </div>
+  </div>
+  <div class="summary-item">
+    <div>
+      <p class="summary-item__label">Selisih · <span data-summary="count">{{ summary.count }}</span> transaksi</p>
+      <p class="summary-item__value" data-summary="net">{{ summary.net_label }}</p>
+    </div>
+  </div>
+</section>
+
+<section class="card card--list reveal" style="--i:2">
+  <ul class="tx-list tx-list--pad" id="tx-list">
+    {% for tx in tx_list %}
+      {% include 'finance/_tx_row.html' %}
+    {% empty %}
+    <li class="empty-note empty-note--center">
+      Tidak ada transaksi{% if filter_type == 'income' %} pemasukan{% elif filter_type == 'expense' %} pengeluaran{% endif %}
+      untuk filter ini.
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

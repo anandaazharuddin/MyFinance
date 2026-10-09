@@ -1,0 +1,415 @@
+{% load static %}
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MyFinance — dasbor keuangan pribadi yang modern, bersih, dan interaktif. Lacak transaksi, atur anggaran, dan capai tujuan keuanganmu.">
+  <title>MyFinance — Dasbor Keuangan Pribadi</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+</head>
+<body class="landing-page">
+
+  <!-- ======= NAVBAR ======= -->
+  <header class="l-nav" id="l-nav">
+    <div class="l-nav__inner">
+      <a class="l-brand" href="/">
+        <span class="l-brand__logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 15.5l5-5 3.5 3.5L20 7.5"/><path d="M15 7.5h5v5"/>
+          </svg>
+        </span>
+        <span class="l-brand__name">My<em>Finance</em></span>
+      </a>
+
+      <nav class="l-nav__links" aria-label="Navigasi halaman">
+        <a href="#fitur">Fitur</a>
+        <a href="#cara-kerja">Cara Kerja</a>
+        <a href="#demo">Pratinjau</a>
+      </nav>
+
+      <div class="l-nav__actions">
+        {% if user.is_authenticated %}
+        <a class="btn btn-ghost btn-sm" href="{% url 'accounts:logout' %}">Keluar</a>
+        <a class="btn btn-primary btn-sm" href="/dashboard/">Dasbor</a>
+        {% else %}
+        <a class="btn btn-ghost btn-sm" href="{% url 'accounts:login' %}">Masuk</a>
+        <a class="btn btn-primary btn-sm" href="{% url 'accounts:login' %}?next=/dashboard/">Buka Dasbor</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ======= HERO ======= -->
+    <section class="l-hero" id="hero">
+      <div class="l-hero__inner">
+        <div class="l-hero__copy">
+          <span class="l-badge reveal-s" style="--i:0">✦ Dasbor Keuangan Pribadi</span>
+          <h1 class="reveal-s" style="--i:1">Kelola keuangan pribadimu <span class="l-hero__hl">dengan tenang</span> dan terukur.</h1>
+          <p class="l-hero__sub reveal-s" style="--i:2">MyFinance membantu kamu melacak pemasukan &amp; pengeluaran, mengatur anggaran bulanan, dan mengejar tujuan keuangan — semuanya dalam satu dasbor yang bersih, cepat, dan sepenuhnya milikmu.</p>
+          <div class="l-hero__cta reveal-s" style="--i:3">
+            <a class="btn btn-primary btn-lg" href="{% if user.is_authenticated %}/dashboard/{% else %}{% url 'accounts:login' %}?next=/dashboard/{% endif %}">
+              Buka Dasbor
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+            </a>
+            <a class="btn btn-ghost btn-lg" href="#fitur">Lihat Fitur</a>
+          </div>
+          <ul class="l-hero__points reveal-s" style="--i:4">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+              Statistik &amp; grafik real-time
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+              Anggaran + notifikasi pintar
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+              Tujuan dengan ring progres
+            </li>
+          </ul>
+        </div>
+
+        <!-- Mockup dasbor interaktif -->
+        <div class="l-hero__visual" id="hero-visual" aria-hidden="true">
+          <div class="l-orb l-orb--1"></div>
+          <div class="l-orb l-orb--2"></div>
+
+          <div class="l-mockup" id="mockup">
+            <div class="l-mockup__bar">
+              <i></i><i></i><i></i>
+              <span>myfinance / dasbor</span>
+            </div>
+            <div class="l-mockup__body">
+              <div class="l-mock-stat">
+                <small>Saldo</small>
+                <b data-count="54600000" data-format="idr">Rp 0</b>
+                <span class="l-chip l-chip--ok">↑ 12% bulan ini</span>
+              </div>
+              <div class="l-mock-bars" id="mock-bars">
+                <span class="l-bar-pair"><i style="--h:58%; --d:0"></i><i class="is-exp" style="--h:34%; --d:0"></i></span>
+                <span class="l-bar-pair"><i style="--h:64%; --d:1"></i><i class="is-exp" style="--h:42%; --d:1"></i></span>
+                <span class="l-bar-pair"><i style="--h:55%; --d:2"></i><i class="is-exp" style="--h:52%; --d:2"></i></span>
+                <span class="l-bar-pair"><i style="--h:82%; --d:3"></i><i class="is-exp" style="--h:48%; --d:3"></i></span>
+                <span class="l-bar-pair"><i style="--h:74%; --d:4"></i><i class="is-exp" style="--h:40%; --d:4"></i></span>
+                <span class="l-bar-pair"><i style="--h:92%; --d:5"></i><i class="is-exp" style="--h:58%; --d:5"></i></span>
+              </div>
+              <div class="l-mock-row">
+                <div class="l-mock-donut">
+                  <svg viewBox="0 0 44 44">
+                    <circle class="ring__track" cx="22" cy="22" r="19"/>
+                    <circle class="ring__fill" cx="22" cy="22" r="19" data-ring="0.64"/>
+                  </svg>
+                  <span class="ring__label">64%</span>
+                </div>
+                <ul class="l-mock-legend">
+                  <li><i style="background:#f59e0b"></i>Makanan <b>32%</b></li>
+                  <li><i style="background:#8b5cf6"></i>Hiburan <b>24%</b></li>
+                  <li><i style="background:#64748b"></i>Lainnya <b>44%</b></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="l-float l-float--1" id="float1">
+            <span class="l-float__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6"/><path d="M6 11l6-5 6 5"/></svg>
+            </span>
+            <div>
+              <small>Pemasukan</small>
+              <b>Rp 8,5 jt</b>
+            </div>
+          </div>
+
+          <div class="l-float l-float--2" id="float2">
+            <div class="l-float__head">
+              <small>Anggaran Hiburan</small>
+              <b>85%</b>
+            </div>
+            <div class="l-float__bar"><span style="width:85%"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= MARQUEE ======= -->
+    <div class="l-marquee" aria-hidden="true">
+      <div class="l-marquee__track">
+        <span>Pemasukan</span><i>•</i><span>Pengeluaran</span><i>•</i><span>Anggaran Bulanan</span><i>•</i><span>Tujuan Keuangan</span><i>•</i><span>Grafik 6 Bulan</span><i>•</i><span>Notifikasi Pintar</span><i>•</i><span>Rasio Hemat</span><i>•</i><span>Kategori</span><i>•</i><span>Statistik Real-time</span><i>•</i>
+        <span>Pemasukan</span><i>•</i><span>Pengeluaran</span><i>•</i><span>Anggaran Bulanan</span><i>•</i><span>Tujuan Keuangan</span><i>•</i><span>Grafik 6 Bulan</span><i>•</i><span>Notifikasi Pintar</span><i>•</i><span>Rasio Hemat</span><i>•</i><span>Kategori</span><i>•</i><span>Statistik Real-time</span><i>•</i>
+      </div>
+    </div>
+
+    <!-- ======= STATISTIK INFORMASI ======= -->
+    <section class="l-stats">
+      <div class="l-stats__inner reveal-s">
+        <div class="l-stat">
+          <b data-count="4" data-format="int">0</b>
+          <small>Area inti: dasbor, transaksi, anggaran, tujuan</small>
+        </div>
+        <div class="l-stat">
+          <b data-count="6" data-format="int">0</b>
+          <small>Bulan riwayat arus kas terpantau</small>
+        </div>
+        <div class="l-stat">
+          <b data-count="3" data-format="int">0</b>
+          <small>Status anggaran: aman, menjelang, terlampaui</small>
+        </div>
+        <div class="l-stat">
+          <b data-count="100" data-format="pct-int">0</b>
+          <small>Data tersimpan di database milikmu sendiri</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= FITUR ======= -->
+    <section class="l-section" id="fitur">
+      <div class="l-section__inner">
+        <header class="l-head reveal-s">
+          <p class="l-head__eyebrow">Fitur Utama</p>
+          <h2>Segala hal yang kamu butuhkan untuk tetap terkontrol</h2>
+          <p>Empat area, satu tujuan: keuangan pribadi yang jelas, terukur, dan tanpa drama spreadsheet.</p>
+        </header>
+
+        <div class="l-features">
+          <article class="l-feature reveal-s" style="--i:0">
+            <span class="l-feature__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="2"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="2"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="2"/><rect x="13" y="13" width="7.5" height="7.5" rx="2"/></svg>
+            </span>
+            <h3>Dasbor &amp; Statistik</h3>
+            <p>Saldo, pemasukan, pengeluaran, dan rasio hemat dalam sekilas pandang — lengkap dengan grafik arus kas 6 bulan.</p>
+          </article>
+          <article class="l-feature reveal-s" style="--i:1">
+            <span class="l-feature__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13"/><path d="M14 4l4 4-4 4"/><path d="M20 16H7"/><path d="M10 20l-4-4 4-4"/></svg>
+            </span>
+            <h3>Transaksi Lengkap</h3>
+            <p>Catat pemasukan &amp; pengeluaran per kategori dengan filter jenis dan bulan, plus rekap selisih secara otomatis.</p>
+          </article>
+          <article class="l-feature reveal-s" style="--i:2">
+            <span class="l-feature__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.8" fill="currentColor"/></svg>
+            </span>
+            <h3>Anggaran Bulanan</h3>
+            <p>Tetapkan batas per kategori dan pantau progresnya: hijau saat aman, kuning saat menjelang, merah saat terlampaui.</p>
+          </article>
+          <article class="l-feature reveal-s" style="--i:3">
+            <span class="l-feature__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 21V4.5"/><path d="M5.5 5h12.5l-2.8 4 2.8 4H5.5"/></svg>
+            </span>
+            <h3>Tujuan Keuangan</h3>
+            <p>Target menabung dengan ring progres yang hidup, target waktu, dan perayaan saat tujuanmu tercapai.</p>
+          </article>
+          <article class="l-feature reveal-s" style="--i:4">
+            <span class="l-feature__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5a6 6 0 1 1 12 0c0 4.8 1.8 5.8 1.8 5.8H4.2S6 14.3 6 9.5"/><path d="M10 18.5a2.1 2.1 0 0 0 4 0"/></svg>
+            </span>
+            <h3>Notifikasi Pintar</h3>
+            <p>Alarm otomatis saat anggaran hampir habis atau tujuanmu nyaris tercapai — tanpa perlu mengecek manual.</p>
+          </article>
+          <article class="l-feature reveal-s" style="--i:5">
+            <span class="l-feature__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-3 8.2-7 10-4-1.8-7-5.4-7-10V6z"/></svg>
+            </span>
+            <h3>Akses Khusus Kamu</h3>
+            <p>Hanya satu akun pemilik yang bisa memakai aplikasi ini — dilindungi PIN 6 digit dan biometrik perangkat, jadi keuanganmu tetap privat.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= CARA KERJA ======= -->
+    <section class="l-section l-section--soft" id="cara-kerja">
+      <div class="l-section__inner">
+        <header class="l-head reveal-s">
+          <p class="l-head__eyebrow">Cara Kerja</p>
+          <h2>Tiga langkah, keuangan lebih rapi</h2>
+        </header>
+
+        <div class="l-steps">
+          <div class="l-step reveal-s" style="--i:0">
+            <span class="l-step__num" aria-hidden="true">1</span>
+            <h3>Buka dasbor</h3>
+            <p>Semua data keuanganmu tersaji rapi: saldo, arus kas, dan transaksi terbaru langsung di depan mata.</p>
+          </div>
+          <div class="l-step reveal-s" style="--i:1">
+            <span class="l-step__num" aria-hidden="true">2</span>
+            <h3>Catat &amp; atur</h3>
+            <p>Tambah transaksi dalam hitungan detik, tetapkan anggaran bulanan, dan buat tujuan keuanganmu.</p>
+          </div>
+          <div class="l-step reveal-s" style="--i:2">
+            <span class="l-step__num" aria-hidden="true">3</span>
+            <h3>Pantau &amp; capai</h3>
+            <p>Grafik dan notifikasi membantu kamu tetap di jalur — keputusan finansial jadi jauh lebih mudah.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= PRATINJAU INTERAKTIF ======= -->
+    <section class="l-section" id="demo">
+      <div class="l-section__inner">
+        <header class="l-head reveal-s">
+          <p class="l-head__eyebrow">Pratinjau</p>
+          <h2>Rasakan langsung antarmukanya</h2>
+          <p>Klik tiap tab untuk melihat bagian dasbor dalam aksi.</p>
+        </header>
+
+        <div class="l-demo reveal-s">
+          <div class="l-demo__tabs" role="tablist" aria-label="Bagian dasbor">
+            <button class="l-tab is-active" type="button" role="tab" aria-selected="true" data-tab="dasbor">Dasbor</button>
+            <button class="l-tab" type="button" role="tab" aria-selected="false" data-tab="transaksi">Transaksi</button>
+            <button class="l-tab" type="button" role="tab" aria-selected="false" data-tab="anggaran">Anggaran</button>
+            <button class="l-tab" type="button" role="tab" aria-selected="false" data-tab="tujuan">Tujuan</button>
+          </div>
+
+          <div class="l-demo__stage">
+            <!-- Tab: Dasbor -->
+            <div class="l-tab-panel is-active" id="panel-dasbor" role="tabpanel">
+              <div class="l-demo-grid">
+                <div class="l-demo-card">
+                  <small>Saldo</small>
+                  <b>Rp 54,6 jt</b>
+                  <span class="l-chip l-chip--ok">↑ 12% bulan ini</span>
+                </div>
+                <div class="l-demo-card">
+                  <small>Pengeluaran Bulan Ini</small>
+                  <b class="is-red">Rp 2,1 jt</b>
+                  <span class="l-chip l-chip--warn">↑ 8% dari bulan lalu</span>
+                </div>
+                <div class="l-demo-chart">
+                  <span><i style="--h:58%"></i><i class="is-exp" style="--h:34%"></i></span>
+                  <span><i style="--h:64%"></i><i class="is-exp" style="--h:42%"></i></span>
+                  <span><i style="--h:55%"></i><i class="is-exp" style="--h:52%"></i></span>
+                  <span><i style="--h:82%"></i><i class="is-exp" style="--h:48%"></i></span>
+                  <span><i style="--h:74%"></i><i class="is-exp" style="--h:40%"></i></span>
+                  <span><i style="--h:92%"></i><i class="is-exp" style="--h:58%"></i></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab: Transaksi -->
+            <div class="l-tab-panel" id="panel-transaksi" role="tabpanel">
+              <ul class="l-demo-tx">
+                <li>
+                  <span class="l-demo-tx__icon" style="--c:#16a34a">💼</span>
+                  <div><b>Gaji bulanan</b><small>Gaji · 1 Okt</small></div>
+                  <span class="is-green">+Rp 8.500.000</span>
+                </li>
+                <li>
+                  <span class="l-demo-tx__icon" style="--c:#f59e0b">🍜</span>
+                  <div><b>Belanja mingguan</b><small>Makanan · 4 Okt</small></div>
+                  <span class="is-red">−Rp 650.000</span>
+                </li>
+                <li>
+                  <span class="l-demo-tx__icon" style="--c:#64748b">🧾</span>
+                  <div><b>Listrik, air &amp; internet</b><small>Tagihan · 4 Okt</small></div>
+                  <span class="is-red">−Rp 1.050.000</span>
+                </li>
+                <li>
+                  <span class="l-demo-tx__icon" style="--c:#8b5cf6">🎬</span>
+                  <div><b>Konser &amp; nonton film</b><small>Hiburan · 3 Okt</small></div>
+                  <span class="is-red">−Rp 350.000</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Tab: Anggaran -->
+            <div class="l-tab-panel" id="panel-anggaran" role="tabpanel">
+              <div class="l-demo-budget">
+                <div>
+                  <div class="l-demo-budget__head"><span>🍜 Makanan</span><b>64%</b></div>
+                  <div class="progress"><span class="progress__fill" style="width:64%"></span></div>
+                  <small>Rp 1,6 jt / Rp 2,5 jt</small>
+                </div>
+                <div>
+                  <div class="l-demo-budget__head"><span>🎬 Hiburan</span><b>85%</b></div>
+                  <div class="progress"><span class="progress__fill progress__fill--warn" style="width:85%"></span></div>
+                  <small>Rp 600 rb / Rp 700 rb</small>
+                </div>
+                <div>
+                  <div class="l-demo-budget__head"><span>🧾 Tagihan</span><b class="is-red">125%</b></div>
+                  <div class="progress"><span class="progress__fill progress__fill--over" style="width:100%"></span></div>
+                  <small class="is-red">Melebihi Rp 300 rb</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab: Tujuan -->
+            <div class="l-tab-panel" id="panel-tujuan" role="tabpanel">
+              <div class="l-demo-goals">
+                <div class="l-demo-goal">
+                  <div class="l-demo-goal__ring">
+                    <svg viewBox="0 0 44 44">
+                      <circle class="ring__track" cx="22" cy="22" r="19"/>
+                      <circle class="ring__fill" cx="22" cy="22" r="19" style="stroke-dashoffset:13.1"/>
+                    </svg>
+                    <span>89%</span>
+                  </div>
+                  <div>
+                    <b>Laptop Kerja Baru</b>
+                    <small>Rp 17,8 jt / Rp 20 jt</small>
+                  </div>
+                </div>
+                <div class="l-demo-goal">
+                  <div class="l-demo-goal__ring">
+                    <svg viewBox="0 0 44 44">
+                      <circle class="ring__track" cx="22" cy="22" r="19"/>
+                      <circle class="ring__fill" cx="22" cy="22" r="19" style="stroke-dashoffset:35.8"/>
+                    </svg>
+                    <span>70%</span>
+                  </div>
+                  <div>
+                    <b>Liburan Akhir Tahun</b>
+                    <small>Rp 8,4 jt / Rp 12 jt</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= CTA ======= -->
+    <section class="l-cta">
+      <div class="l-cta__inner reveal-s">
+        <h2>Siap mulai mengatur keuangan?</h2>
+        <p>Semua fitur sudah siap digunakan — buka dasbor dan mulai mencatat hari ini juga.</p>
+        <a class="btn btn-light btn-lg" href="{% if user.is_authenticated %}/dashboard/{% else %}{% url 'accounts:login' %}?next=/dashboard/{% endif %}">
+          Buka Dasbor Sekarang
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======= FOOTER ======= -->
+  <footer class="l-foot">
+    <div class="l-foot__inner">
+      <a class="l-brand l-brand--foot" href="/">
+        <span class="l-brand__logo l-brand__logo--sm" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 15.5l5-5 3.5 3.5L20 7.5"/><path d="M15 7.5h5v5"/>
+          </svg>
+        </span>
+        <span class="l-brand__name">My<em>Finance</em></span>
+      </a>
+      <p class="l-foot__tag">Dasbor keuangan pribadi — modern, cepat, dan sepenuhnya milikmu.</p>
+      <nav class="l-foot__links" aria-label="Tautan footer">
+        <a href="/dashboard/">Dasbor</a>
+        <a href="#fitur">Fitur</a>
+        <a href="{% if user.is_authenticated %}{% url 'accounts:logout' %}{% else %}{% url 'accounts:login' %}{% endif %}">{% if user.is_authenticated %}Keluar{% else %}Masuk{% endif %}</a>
+      </nav>
+      <p class="l-foot__copy">© 2026 MyFinance. Dibangun dengan Django.</p>
+    </div>
+  </footer>
+
+  <script src="{% static 'js/landing.js' %}"></script>
+</body>
+</html>

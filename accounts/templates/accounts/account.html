@@ -1,0 +1,214 @@
+{% extends 'finance/base.html' %}
+{% load static %}
+
+{% block title %}Akun &amp; Keamanan · MyFinance{% endblock %}
+{% block page-title %}Akun &amp; Keamanan{% endblock %}
+
+{% block content %}
+<div class="page page--account">
+  <div class="account-grid">
+    <!-- ======= IDENTITAS ======= -->
+    <section class="card reveal" style="--i:1">
+      <header class="card__head">
+        <div>
+          <h2 class="card__title">Identitas</h2>
+          <p class="card__subtitle">Informasi akun kamu di MyFinance</p>
+        </div>
+      </header>
+      <div class="account-id">
+        <span class="account-id__avatar" aria-hidden="true">{{ user.username|first|upper|default:'U' }}</span>
+        <div class="account-id__meta">
+          <b>{{ user.username }}</b>
+          <small>Login dengan PIN 6 digit</small>
+        </div>
+        <span class="chip chip--ok">Aktif</span>
+      </div>
+    </section>
+
+    <!-- ======= GANTI PIN ======= -->
+    <section class="card reveal" style="--i:2">
+      <header class="card__head">
+        <div>
+          <h2 class="card__title">Ganti PIN</h2>
+          <p class="card__subtitle">PIN 6 digit dipakai untuk login</p>
+        </div>
+      </header>
+
+      <form method="post" action="{% url 'accounts:change_pin' %}" novalidate>
+        {% csrf_token %}
+        <div class="field">
+          <label for="{{ change_form.old_pin.id_for_label }}">PIN saat ini</label>
+          {{ change_form.old_pin }}
+          {% if change_form.old_pin.errors %}<small class="field__error">{{ change_form.old_pin.errors.0 }}</small>{% endif %}
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="{{ change_form.new_pin.id_for_label }}">PIN baru</label>
+            {{ change_form.new_pin }}
+            {% if change_form.new_pin.errors %}<small class="field__error">{{ change_form.new_pin.errors.0 }}</small>{% endif %}
+          </div>
+          <div class="field">
+            <label for="{{ change_form.new_pin2.id_for_label }}">Ulangi PIN baru</label>
+            {{ change_form.new_pin2 }}
+            {% if change_form.new_pin2.errors %}<small class="field__error">{{ change_form.new_pin2.errors.0 }}</small>{% endif %}
+          </div>
+        </div>
+        <div class="form-errors" id="pin-errors" hidden></div>
+        <footer class="card__foot">
+          <button type="submit" class="btn btn-primary">Simpan PIN Baru</button>
+        </footer>
+      </form>
+    </section>
+
+    <!-- ======= BIOMETRIK (WEBAUTHN) ======= -->
+    <section class="card reveal card--biometric" style="--i:3">
+      <header class="card__head">
+        <div>
+          <h2 class="card__title">
+            <span class="biometric-title-ic" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 11a2 2 0 0 1 2 2c0 2.5-.4 4.8-1 6.5"/><path d="M8.6 11.2A4 4 0 0 1 16 13c0 1.5 0 3-.3 4.5"/>
+                <path d="M5.6 13.5A7 7 0 0 1 12 5.5c1.6 0 3 .5 4.2 1.4"/><path d="M12 13c0 2.6-.4 5-1.2 7"/>
+              </svg>
+            </span>
+            Biometrik (Sidik Jari / Face ID)
+          </h2>
+          <p class="card__subtitle">
+            Ikatan keamanan kedua — hanya sidik jari di HP kamu yang bisa membuka akun ini,
+            walau orang lain tahu username &amp; PIN kamu.
+          </p>
+        </div>
+      </header>
+
+      <div class="biometric">
+        {% if not wa_enabled %}
+        <div class="biometric__state biometric__state--off">
+          <b>Belum aktif di server.</b>
+          <p>Set variabel lingkungan <code>WEBAUTHN_RP_ID</code> (domain kamu) dan
+            <code>WEBAUTHN_ORIGINS</code> (mis. <code>https://domain-kamu.com</code>) lalu deploy ulang.
+            Login tetap berjalan normal dengan PIN.</p>
+        </div>
+        {% else %}
+        <div class="biometric__list" id="wa-creds">
+          {% for cred in creds %}
+          <div class="wa-cred">
+            <span class="wa-cred__ic" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 11a2 2 0 0 1 2 2c0 2.5-.4 4.8-1 6.5"/><path d="M8.6 11.2A4 4 0 0 1 16 13c0 1.5 0 3-.3 4.5"/>
+                <path d="M5.6 13.5A7 7 0 0 1 12 5.5c1.6 0 3 .5 4.2 1.4"/><path d="M12 13c0 2.6-.4 5-1.2 7"/>
+              </svg>
+            </span>
+            <span class="wa-cred__meta">
+              <b>{{ cred.name }}</b>
+              <small>Didaftarkan {{ cred.created_at|date:'d M Y' }}</small>
+            </span>
+            <button type="button" class="btn btn-ghost btn-sm wa-cred__del" data-delete-cred="{% url 'accounts:wa_credential_delete' cred.pk %}">
+              Hapus
+            </button>
+          </div>
+          {% empty %}
+          <p class="biometric__empty">
+            Belum ada biometrik terdaftar. Daftar sidik jari di HP kamu supaya
+            login makin aman — satu langkah setelah PIN.
+          </p>
+          {% endfor %}
+        </div>
+
+        <button type="button" class="btn btn-primary biometric__enroll" id="wa-enroll">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 11a2 2 0 0 1 2 2c0 2.5-.4 4.8-1 6.5"/><path d="M8.6 11.2A4 4 0 0 1 16 13c0 1.5 0 3-.3 4.5"/>
+            <path d="M5.6 13.5A7 7 0 0 1 12 5.5c1.6 0 3 .5 4.2 1.4"/><path d="M12 13c0 2.6-.4 5-1.2 7"/>
+          </svg>
+          Daftarkan Sidik Jari di HP Ini
+        </button>
+
+        <p class="biometric__status" id="wa-status" role="status" aria-live="polite"></p>
+
+        <p class="biometric__note">
+          💡 Daftar menggunakan HP kamu sendiri (Chrome/Safari modern). Setelah terdaftar,
+          setiap login <b>meminta PIN lalu sidik jari</b> di HP itu. Jika HP hilang atau
+          kredensial rusak, pemilik dapat meresetnya via
+          <code>python manage.py webauthn_reset &lt;username&gt;</code>.
+        </p>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- ======= INTEGRASI TELEGRAM ======= -->
+    <section class="card reveal card--telegram" id="integrasi-telegram" style="--i:4">
+      <header class="card__head">
+        <div>
+          <h2 class="card__title">
+            <span class="tg-title-ic" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 4L3.6 10.7c-.9.35-.85 1.6.07 1.9l4.4 1.4 1.6 4.9c.3.9 1.5.98 1.96.13L21 4z"/>
+                <path d="M8.1 14l8.9-7.3"/>
+              </svg>
+            </span>
+            Integrasi Telegram
+          </h2>
+          <p class="card__subtitle">Catat pemasukan &amp; pengeluaran langsung dari chat @{{ tg.bot_username }}</p>
+        </div>
+        <span class="tg-chip tg-chip--{{ tg.state }}">{{ tg.state_label }}</span>
+      </header>
+
+      <div class="tg-panel">
+        <div class="tg-state tg-state--{{ tg.state }}">
+          <b>{{ tg.label }}</b>
+        </div>
+
+        <p class="tg-note">
+          Transaksi dari Telegram tercatat otomatis <b>selama aplikasi ini terbuka</b>
+          (pembaruan tiap ±25 detik). Setiap transaksi baru juga muncul sebagai
+          notifikasi di layar ini.
+        </p>
+
+        {% if not tg.token_set %}
+        <div class="tg-step">
+          <b>Langkah 1 — token bot</b>
+          <p>Tambahkan token dari @BotFather ke file <code>.env</code> MyFinance, lalu restart server:</p>
+          <code class="tg-code">TELEGRAM_BOT_TOKEN=token-dari-BotFather</code>
+        </div>
+        {% endif %}
+
+        {% if tg.token_set and not tg.chat_verified %}
+        <div class="tg-step">
+          <b>Langkah 2 — verifikasi chat kamu</b>
+          <p>Kirim pesan apa saja ke <b>@{{ tg.bot_username }}</b> (mis. <i>halo</i>).
+          Balasan bot memuat <b>chat ID</b> kamu — tambahkan ke <code>.env</code> lalu restart server:</p>
+          {% if tg.last_chat_id %}
+          <p class="tg-chat-found">Chat ID terdeteksi dari chat terakhir ({{ tg.last_chat_name|default:"tanpa nama" }}):</p>
+          <code class="tg-code">TELEGRAM_ALLOWED_CHAT_IDS={{ tg.last_chat_id }}</code>
+          {% else %}
+          <code class="tg-code">TELEGRAM_ALLOWED_CHAT_IDS=123456789</code>
+          {% endif %}
+          <p class="tg-secure">Demi keamanan, pesan dari chat lain diabaikan — hanya kamu yang bisa mencatat transaksi lewat bot.</p>
+        </div>
+        {% endif %}
+
+        <div class="tg-step">
+          <b>Cara mengirim transaksi</b>
+          <p>Ketik ke bot dengan format <code>[pemasukan|+] kategori jumlah [tanggal]</code>:</p>
+          <ul class="tg-examples">
+            <li><code>makan siang 25rb</code> → pengeluaran “makan siang” Rp 25.000</li>
+            <li><code>+gaji 5jt</code> → pemasukan “gaji” Rp 5.000.000</li>
+            <li><code>sewa rumah 1.500.000 05-07-2026</code> → dengan tanggal tertentu</li>
+            <li><code>belanja 100rb kemarin</code> → tanggal relatif</li>
+          </ul>
+          <p class="tg-secure">
+            🔒 Jika kategorinya <b>belum ada</b>, bot <b>tak akan langsung membuatnya</b> —
+            ia bertanya dulu: <code>simpan</code> (untuk seterusnya) atau
+            <code>bulanan</code> (hanya bulan ini, dihapus otomatis) —
+            agar kategori random tidak menumpuk.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{% static 'accounts/css/biometric.css' %}">
+<script src="{% static 'accounts/js/biometric.js' %}"></script>
+{% endblock %}

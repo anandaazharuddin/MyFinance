@@ -1,0 +1,18 @@
+{% load finance_extras %}
+<li class="tx" data-id="{{ tx.id }}">
+  <span class="tx__icon" style="--c: {{ tx.category.color }}">{{ tx.category.icon }}</span>
+  <div class="tx__main">
+    <b class="tx__desc">{{ tx.description|default:tx.category.name }}</b>
+    <small class="tx__meta">{{ tx.category.name }} · {{ tx.date|id_date }}</small>
+  </div>
+  <div class="tx__side">
+    <span class="tx__amount {% if tx.type == 'income' %}is-income{% else %}is-expense{% endif %}">
+      {% if tx.type == 'income' %}+{% else %}−{% endif %}{{ tx.amount|idr }}
+    </span>
+    <button type="button" class="icon-btn icon-btn--sm icon-btn--danger tx__delete" data-delete-tx="{{ tx.id }}" aria-label="Hapus transaksi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4.5 7h15"/><path d="M9.5 7V5h5v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10.2 11v5.5M13.8 11v5.5"/>
+      </svg>
+    </button>
+  </div>
+</li>

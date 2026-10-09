@@ -1,0 +1,158 @@
+{% extends 'finance/base.html' %}
+{% load finance_extras %}
+
+{% block title %}Tujuan · MyFinance{% endblock %}
+{% block page-title %}Tujuan{% endblock %}
+
+{% block content %}
+<div class="toolbar reveal" style="--i:0">
+  <div>
+    <h2 class="toolbar__title">Tujuan Keuangan</h2>
+    <p class="toolbar__sub">Atur target menabung dan pantau progresnya bulan demi bulan.</p>
+  </div>
+  <div class="toolbar__spacer"></div>
+  <button type="button" class="btn btn-primary btn-sm" data-open="goal-modal">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    Tambah Tujuan
+  </button>
+</div>
+
+<section class="goal-grid">
+  {% for g in goals %}
+  <article class="card goal-card reveal {% if g.done %}goal-card--done{% endif %}" style="--i:{{ forloop.counter0 }}" data-goal-id="{{ g.id }}">
+    <div class="goal-card__top">
+      <div class="goal-card__ring" aria-hidden="true">
+        <svg viewBox="0 0 44 44">
+          <circle class="ring__track" cx="22" cy="22" r="19"/>
+          <circle class="ring__fill" cx="22" cy="22" r="19" data-ring="{{ g.ring_p }}"/>
+        </svg>
+        <span class="ring__label">{{ g.pct }}%</span>
+      </div>
+      {% if g.done %}<span class="chip chip--ok">Tercapai 🎉</span>{% endif %}
+    </div>
+    <h3 class="goal-card__name">{{ g.name }}</h3>
+    <p class="goal-card__amounts"><b>{{ g.current_label }}</b> <span>/ {{ g.target_label }}</span></p>
+    <div class="goal-card__meta">
+      {% if g.deadline_label %}
+      <span class="chip chip--info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="16" height="15" rx="2.5"/><path d="M4 11h16M9 4v4M15 4v4"/></svg>
+        {{ g.deadline_label }}
+      </span>
+      {% else %}
+      <span class="chip">Tanpa target waktu</span>
+      {% endif %}
+    </div>
+    <footer class="goal-card__actions">
+      <button type="button" class="btn btn-ghost btn-sm" data-contribute="{{ g.id }}" data-goal-name="{{ g.name }}" data-remaining="{{ g.remaining }}" data-remaining-label="{{ g.remaining_label }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Tambah Dana
+      </button>
+      <button type="button" class="icon-btn icon-btn--danger" data-delete-goal="{{ g.id }}" data-goal-name="{{ g.name }}" aria-label="Hapus tujuan {{ g.name }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 7h15"/><path d="M9.5 7V5h5v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10.2 11v5.5M13.8 11v5.5"/></svg>
+      </button>
+    </footer>
+  </article>
+  {% empty %}
+  <div class="card empty-note-card reveal">
+    <p class="empty-note">Belum ada tujuan keuangan. Mulai dari yang kecil — misalnya dana darurat.</p>
+    <button type="button" class="btn btn-primary btn-sm" data-open="goal-modal">Buat Tujuan Pertama</button>
+  </div>
+  {% endfor %}
+</section>
+
+<!-- ======= TEMPLATE: KARTU TUJUAN (dipakai main.js) ======= -->
+<template id="tpl-goal">
+  <article class="card goal-card tx--new" data-goal-id="">
+    <div class="goal-card__top">
+      <div class="goal-card__ring" aria-hidden="true">
+        <svg viewBox="0 0 44 44">
+          <circle class="ring__track" cx="22" cy="22" r="19"/>
+          <circle class="ring__fill" cx="22" cy="22" r="19" data-ring="0"/>
+        </svg>
+        <span class="ring__label">0%</span>
+      </div>
+    </div>
+    <h3 class="goal-card__name"></h3>
+    <p class="goal-card__amounts"><b></b> <span></span></p>
+    <div class="goal-card__meta"></div>
+    <footer class="goal-card__actions">
+      <button type="button" class="btn btn-ghost btn-sm" data-contribute="">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Tambah Dana
+      </button>
+      <button type="button" class="icon-btn icon-btn--danger" data-delete-goal="" aria-label="Hapus tujuan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 7h15"/><path d="M9.5 7V5h5v2"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10.2 11v5.5M13.8 11v5.5"/></svg>
+      </button>
+    </footer>
+  </article>
+</template>
+
+<!-- ======= MODAL: TUJUAN BARU ======= -->
+<div class="modal" id="goal-modal" aria-hidden="true">
+  <div class="modal__overlay" data-close-modal></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="goal-modal-title">
+    <header class="modal__head">
+      <div>
+        <h3 class="modal__title" id="goal-modal-title">Tambah Tujuan</h3>
+        <p class="modal__subtitle">Target menabung untuk masa depan</p>
+      </div>
+      <button type="button" class="icon-btn" data-close-modal aria-label="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </header>
+
+    <form id="goal-form" novalidate>
+      {% csrf_token %}
+      <div class="field">
+        <label for="goal-name">Nama Tujuan</label>
+        <input id="goal-name" name="name" type="text" maxlength="120" placeholder="mis. Dana Darurat" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="goal-target">Target (Rp)</label>
+          <input id="goal-target" name="target_amount" type="number" min="0" step="0.01" placeholder="mis. 10000000" required inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="goal-deadline">Target Waktu <span class="field__hint">(opsional)</span></label>
+          <input id="goal-deadline" name="deadline" type="date">
+        </div>
+      </div>
+      <div class="form-errors" id="goal-errors" hidden></div>
+      <footer class="modal__foot">
+        <button type="button" class="btn btn-ghost" data-close-modal>Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Tujuan</button>
+      </footer>
+    </form>
+  </div>
+</div>
+
+<!-- ======= MODAL: TAMBAH DANA ======= -->
+<div class="modal" id="contribute-modal" aria-hidden="true">
+  <div class="modal__overlay" data-close-modal></div>
+  <div class="modal__panel modal__panel--sm" role="dialog" aria-modal="true" aria-labelledby="contribute-modal-title">
+    <header class="modal__head">
+      <div>
+        <h3 class="modal__title" id="contribute-modal-title">Tambah Dana</h3>
+        <p class="modal__subtitle" id="contribute-context">—</p>
+      </div>
+      <button type="button" class="icon-btn" data-close-modal aria-label="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </header>
+
+    <form id="contribute-form" novalidate>
+      {% csrf_token %}
+      <div class="field">
+        <label for="contribute-amount">Jumlah (Rp)</label>
+        <input id="contribute-amount" name="amount" type="number" min="0" step="0.01" placeholder="0" required inputmode="numeric">
+        <small class="field__hint" id="contribute-hint"></small>
+      </div>
+      <div class="form-errors" id="contribute-errors" hidden></div>
+      <footer class="modal__foot">
+        <button type="button" class="btn btn-ghost" data-close-modal>Batal</button>
+        <button type="submit" class="btn btn-primary">Tambahkan</button>
+      </footer>
+    </form>
+  </div>
+</div>
+{% endblock %}

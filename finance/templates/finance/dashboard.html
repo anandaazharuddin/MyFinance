@@ -1,0 +1,211 @@
+{% extends 'finance/base.html' %}
+{% load static finance_extras %}
+{% block title %}Dasbor · MyFinance{% endblock %}
+{% block page-title %}Dasbor{% endblock %}
+
+{% block content %}
+{% if mf_has_data %}
+
+<!-- ======= STAT CARDS ======= -->
+<section class="stats-grid" aria-label="Ringkasan keuangan">
+  <article class="stat-card stat-card--brand reveal" style="--i:0">
+    <div class="stat-card__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="6.5" width="18" height="13" rx="3"/><path d="M3 10.5h18"/><circle cx="16.8" cy="14.8" r="1.1" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+    <div class="stat-card__body">
+      <p class="stat-card__label">Saldo</p>
+      <p class="stat-card__value" data-stat="balance" data-count="{{ stats.balance.value }}" data-format="idr">{{ stats.balance.label }}</p>
+      <p class="stat-card__delta delta--{{ stats.balance.delta_tone }}" data-stat-delta="balance">{{ stats.balance.delta_text }}</p>
+    </div>
+  </article>
+
+  <article class="stat-card stat-card--income reveal" style="--i:1">
+    <div class="stat-card__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v13"/><path d="M6 13l6 5 6-5"/>
+      </svg>
+    </div>
+    <div class="stat-card__body">
+      <p class="stat-card__label">Pemasukan · Bulan Ini</p>
+      <p class="stat-card__value" data-stat="income_mtd" data-count="{{ stats.income_mtd.value }}" data-format="idr">{{ stats.income_mtd.label }}</p>
+      <p class="stat-card__delta delta--{{ stats.income_mtd.delta_tone }}" data-stat-delta="income_mtd">{{ stats.income_mtd.delta_text }}</p>
+    </div>
+  </article>
+
+  <article class="stat-card stat-card--expense reveal" style="--i:2">
+    <div class="stat-card__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 19V6"/><path d="M6 11l6-5 6 5"/>
+      </svg>
+    </div>
+    <div class="stat-card__body">
+      <p class="stat-card__label">Pengeluaran · Bulan Ini</p>
+      <p class="stat-card__value" data-stat="expense_mtd" data-count="{{ stats.expense_mtd.value }}" data-format="idr">{{ stats.expense_mtd.label }}</p>
+      <p class="stat-card__delta delta--{{ stats.expense_mtd.delta_tone }}" data-stat-delta="expense_mtd">{{ stats.expense_mtd.delta_text }}</p>
+    </div>
+  </article>
+
+  <article class="stat-card stat-card--info reveal" style="--i:3">
+    <div class="stat-card__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="8.6"/><path d="M9.2 14.8l5.6-5.6"/><circle cx="9.4" cy="9.4" r="1.15" fill="currentColor" stroke="none"/><circle cx="14.6" cy="14.6" r="1.15" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+    <div class="stat-card__body">
+      <p class="stat-card__label">Rasio Hemat · Bulan Ini</p>
+      <p class="stat-card__value" data-stat="savings_rate" data-count="{{ stats.savings_rate.value }}" data-format="pct">{{ stats.savings_rate.label }}</p>
+      <p class="stat-card__delta delta--{{ stats.savings_rate.delta_tone }}" data-stat-delta="savings_rate">{{ stats.savings_rate.delta_text }}</p>
+    </div>
+  </article>
+</section>
+
+<!-- ======= CHARTS ======= -->
+<section class="grid-2">
+  <div class="card chart-card reveal" style="--i:1">
+    <header class="card__head">
+      <div>
+        <h2 class="card__title">Arus Kas</h2>
+        <p class="card__subtitle">Pemasukan vs pengeluaran · 6 bulan terakhir</p>
+      </div>
+      <span class="chip">Bulanan</span>
+    </header>
+    <div class="chart-box">
+      <canvas id="cashflow-chart" role="img" aria-label="Grafik arus kas enam bulan terakhir"></canvas>
+    </div>
+  </div>
+
+  <div class="card chart-card reveal" style="--i:2">
+    <header class="card__head">
+      <div>
+        <h2 class="card__title">Pengeluaran</h2>
+        <p class="card__subtitle">Per kategori · {{ current_month_label }}</p>
+      </div>
+    </header>
+    <div class="chart-box chart-box--donut">
+      <canvas id="spend-chart" role="img" aria-label="Grafik porsi pengeluaran per kategori"></canvas>
+      <div class="donut-center">
+        <small>Total bulan ini</small>
+        <b>{{ breakdown_total_label }}</b>
+      </div>
+    </div>
+    <ul class="legend" id="spend-legend">
+      {% for b in breakdown %}
+      <li>
+        <span class="legend__dot" style="background: {{ b.color }}" aria-hidden="true"></span>
+        <span class="legend__name">{{ b.name }}</span>
+        <b>{{ b.pct }}%</b>
+      </li>
+      {% empty %}
+      <li class="legend__empty">Belum ada pengeluaran bulan ini.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<!-- ======= LATEST + SIDE ======= -->
+<section class="grid-2 grid-2--split">
+  <div class="card reveal" style="--i:1">
+    <header class="card__head">
+      <div>
+        <h2 class="card__title">Transaksi Terbaru</h2>
+        <p class="card__subtitle">8 transaksi terakhir</p>
+      </div>
+      <a class="btn btn-ghost btn-sm" href="{% url 'finance:transactions' %}">Lihat semua</a>
+    </header>
+    <ul class="tx-list" id="tx-list">
+      {% for tx in recent_tx %}
+        {% include 'finance/_tx_row.html' %}
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="stack">
+    <div class="card reveal" style="--i:2">
+      <header class="card__head">
+        <div>
+          <h2 class="card__title">Anggaran</h2>
+          <p class="card__subtitle">Realisasi bulan ini</p>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="{% url 'finance:budgets' %}">Kelola</a>
+      </header>
+      <ul class="budget-mini">
+        {% for b in budgets_top %}
+        <li>
+          <div class="budget-mini__head">
+            <span class="budget-mini__name">
+              <i class="tx__icon tx__icon--sm" style="--c: {{ b.color }}" aria-hidden="true">{{ b.icon }}</i>
+              {{ b.name }}
+            </span>
+            <b class="budget-mini__pct">{{ b.pct }}%</b>
+          </div>
+          <div class="progress">
+            <span class="progress__fill progress__fill--{{ b.state }}" data-progress="{{ b.pct }}"></span>
+          </div>
+          <small class="budget-mini__nums">{{ b.spent_label }} / {{ b.limit_label }}</small>
+        </li>
+        {% empty %}
+        <li><p class="empty-note">Belum ada anggaran. <a href="{% url 'finance:budgets' %}">Buat sekarang</a>.</p></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card reveal" style="--i:3">
+      <header class="card__head">
+        <div>
+          <h2 class="card__title">Tujuan</h2>
+          <p class="card__subtitle">Progres terdekat</p>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="{% url 'finance:goals' %}">Semua tujuan</a>
+      </header>
+      <ul class="goal-mini">
+        {% for g in goals_top %}
+        <li>
+          <div class="goal-mini__ring" aria-hidden="true">
+            <svg viewBox="0 0 44 44">
+              <circle class="ring__track" cx="22" cy="22" r="19"/>
+              <circle class="ring__fill" cx="22" cy="22" r="19" data-ring="{{ g.ring_p }}"/>
+            </svg>
+            <span class="ring__label">{{ g.pct }}%</span>
+          </div>
+          <div class="goal-mini__body">
+            <b>{{ g.name }}</b>
+            <small>{{ g.current_label }} / {{ g.target_label }}</small>
+          </div>
+        </li>
+        {% empty %}
+        <li><p class="empty-note">Belum ada tujuan. <a href="{% url 'finance:goals' %}">Tambahkan</a>.</p></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+{% else %}
+
+<!-- ======= EMPTY STATE ======= -->
+<section class="empty-hero card reveal">
+  <div class="empty-hero__icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="6.5" width="18" height="13" rx="3"/><path d="M3 10.5h18"/><circle cx="16.8" cy="14.8" r="1.1" fill="currentColor" stroke="none"/>
+      <path d="M8 3.5l-2 2M12 3l-1 2.5M16 3.5l2 2"/>
+    </svg>
+  </div>
+  <h2>Selamat datang di MyFinance</h2>
+  <p>Belum ada data keuangan di sini. Tambahkan transaksi pertamamu, atau muat data contoh untuk melihat bagaimana dasbor ini bekerja.</p>
+  <div class="empty-hero__actions">
+    <button type="button" class="btn btn-primary" data-open="tx-modal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      Tambah Transaksi
+    </button>
+    <button type="button" class="btn btn-ghost" id="seed-demo">Muat data contoh</button>
+  </div>
+</section>
+
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/charts.js' %}"></script>
+{% endblock %}
