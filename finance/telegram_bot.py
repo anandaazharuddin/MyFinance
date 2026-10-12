@@ -36,7 +36,12 @@ from .models import (
     TelegramPendingCategory,
     Transaction,
 )
-from .utils import MONTHS_ID_FULL, format_date_short, format_idr
+from .utils import (
+    MONTHS_ID_FULL,
+    format_date_short,
+    format_idr,
+    stats_payload,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -89,11 +94,13 @@ SAVED_MSG = (
     "• Jenis: {ttype}\n"
     "• Jumlah: {amount}\n"
     "• Tanggal: {date}"
+    "{summary}"
 )
 
 PENDING_DONE_MSG = (
     "✅ Kategori <b>{name}</b> dibuat ({scope})\n"
     "{budget_line}• Transaksi {amount} ({ttype}, {date}) tercatat."
+    "{summary}"
 )
 
 ASK_BUDGET_MSG = (
@@ -147,6 +154,20 @@ def _reply(chat_id, text):
     """Kirim balasan teks (HTML) ke chat; aman dipanggil meski gagal."""
     _api('sendMessage', chat_id=chat_id, text=text,
          parse_mode='HTML', disable_web_page_preview='true')
+
+
+def _summary_lines():
+    """Ringkasan saldo untuk balasan bot — angkanya sama persis dengan
+    tiga kartu di dasbor web (pemasukan & pengeluaran bulan ini,
+    saldo keseluruhan) karena memakai stats_payload() yang sama."""
+    s = stats_payload()
+    today = date.today()
+    return (
+        f"\n\n📊 {MONTHS_ID_FULL[today.month - 1]} {today.year}\n"
+        f"• Pemasukan: {s['income_mtd']['label']}\n"
+        f"• Pengeluaran: {s['expense_mtd']['label']}\n"
+        f"• Saldo: {s['balance']['label']}"
+    )
 
 
 def get_state():
@@ -436,6 +457,7 @@ def _finish_pending(pending, chat_id, temporary, budget_limit=None):
         amount=format_idr(tx.amount),
         ttype=_ttype_label(tx.type),
         date=format_date_short(tx.date),
+        summary=_summary_lines(),
     ))
     return {
         'kind': 'tx',
@@ -568,6 +590,7 @@ def process_update(update):
         ttype=_ttype_label(tx.type),
         amount=format_idr(tx.amount),
         date=format_date_short(tx.date),
+        summary=_summary_lines(),
     ))
     return {'kind': 'tx', 'tx_id': tx.id, 'category': category.name}
 
