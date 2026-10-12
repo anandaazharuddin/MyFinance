@@ -12,4 +12,5 @@ media/
 *.log
 *.pyc
 staticfiles/
-*.log
+desktop.ini
+Cuplikan layar*.png
